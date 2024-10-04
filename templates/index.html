@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geographic Data Directory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="nav dashboard">
+        <div class="nav-item">
+            <h1 class="navText">Welcome to the Geographic Data Directory</h1>
+        </div>
+        <button class="button" hx-get="/data" hx-target="#output">Get JSON Data</button>
+        <button class="button" onclick="zoomMetOffice()">
+            Find Met Office
+        </button>
+    </div>
+    <div class="map">
+        <div id="map"></div>
+    </div>
+    
+    <div class="JSON-box" id="output"></div>
+
+    <script>
+let map = L.map("map");
+let marker;
+let coords = []
+
+fetch("/data")
+    .then((response) => response.json())
+    .then((data) => {
+        coords = data.features[0].geometry.coordinates;
+        map.setView([coords[1], coords[0]], 8);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+        marker = L.marker([coords[1], coords[0]]).addTo(map);
+    });
+
+function zoomMetOffice()
+{
+    if (map)
+    {
+        map.setView([coords[1],coords[0]],18)
+    }
+    
+}
+    </script>
+</body>
+</html>
